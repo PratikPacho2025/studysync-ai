@@ -1,0 +1,3 @@
+export function SubjectProgress({ percentage }) {
+  return <div><div className="mb-2 flex items-center justify-between text-sm font-semibold"><span className="text-[var(--color-muted)]">Progress</span><span className="text-[var(--color-ink)]">{percentage}%</span></div><div className="h-2 overflow-hidden rounded-full bg-[#e7efe9]"><div className="h-full rounded-full bg-[var(--color-accent)] transition-all" style={{ width: `${percentage}%` }} /></div></div>
+}

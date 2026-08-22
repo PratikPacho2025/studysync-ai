@@ -1,0 +1,6 @@
+import { History } from 'lucide-react'
+import { AttendanceHistoryItem } from './AttendanceHistoryItem'
+
+export function AttendanceHistory({ records, filter, onFilterChange }) {
+  return <section className="dashboard-card bg-white p-5 sm:p-6" aria-labelledby="attendance-history-title"><div className="flex items-center justify-between gap-3"><div className="flex items-center gap-2"><History size={18} className="text-[var(--color-accent)]" aria-hidden="true" /><h2 id="attendance-history-title" className="text-xl font-semibold text-[var(--color-ink)]">Recent Attendance</h2></div><select aria-label="Filter attendance history" value={filter} onChange={(event) => onFilterChange(event.target.value)} className="min-h-10 rounded-xl border border-[#d8e5db] bg-[#fbfdfb] px-2 text-xs font-semibold text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)]"><option value="all">All</option><option value="present">Present</option><option value="absent">Absent</option></select></div><ul className="mt-4 divide-y divide-[#edf1ed]">{records.length > 0 ? records.map((record) => <AttendanceHistoryItem key={record.id} record={record} />) : <li className="py-8 text-center text-sm text-[var(--color-muted)]">No attendance records found.</li>}</ul></section>
+}

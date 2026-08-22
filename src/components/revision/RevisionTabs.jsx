@@ -1,0 +1,3 @@
+export function RevisionTabs({ activeTab, onChange }) {
+  return <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Filter revisions">{[['due', 'Due'], ['upcoming', 'Upcoming'], ['completed', 'Completed']].map(([value, label]) => <button key={value} type="button" role="tab" aria-selected={activeTab === value} onClick={() => onChange(value)} className={`min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold transition ${activeTab === value ? 'bg-[var(--color-accent)] text-white' : 'bg-white text-[var(--color-muted)] hover:text-[var(--color-accent)]'}`}>{label}</button>)}</div>
+}

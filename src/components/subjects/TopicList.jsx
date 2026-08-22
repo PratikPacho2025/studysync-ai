@@ -1,0 +1,9 @@
+import { Plus } from 'lucide-react'
+import { TopicCard } from './TopicCard'
+
+const filters = [['all', 'All'], ['completed', 'Completed'], ['in-progress', 'In Progress'], ['not-started', 'Not Started'], ['needs-revision', 'Needs Revision'], ['weak', 'Weak']]
+
+export function TopicList({ topics, filter, onFilterChange, onAdd, onStatusChange, onEdit, onDelete }) {
+  const visibleTopics = topics.filter((topic) => filter === 'all' || (filter === 'weak' ? topic.quizAccuracy > 0 && topic.quizAccuracy < 60 : filter === 'needs-revision' ? topic.revisionStatus === 'pending' : topic.status === filter))
+  return <section aria-labelledby="topic-list-title"><div className="flex items-center justify-between gap-3"><h2 id="topic-list-title" className="text-xl font-semibold text-[var(--color-ink)]">Topics</h2><button type="button" onClick={onAdd} className="flex min-h-10 items-center gap-1 rounded-xl px-2 text-xs font-bold text-[var(--color-accent)] hover:bg-[#eef7f0]"><Plus size={16} aria-hidden="true" /> Add topic</button></div><div className="-mx-5 mt-4 overflow-x-auto px-5 pb-1 sm:-mx-8 sm:px-8 lg:mx-0 lg:px-0"><div className="flex min-w-max gap-2" role="tablist" aria-label="Filter topics">{filters.map(([value, label]) => <button key={value} type="button" role="tab" aria-selected={filter === value} onClick={() => onFilterChange(value)} className={`min-h-10 rounded-xl px-3 text-xs font-bold transition ${filter === value ? 'bg-[var(--color-accent)] text-white' : 'bg-white text-[var(--color-muted)] hover:text-[var(--color-accent)]'}`}>{label}</button>)}</div></div><div className="mt-4 space-y-3">{visibleTopics.length ? visibleTopics.map((topic) => <TopicCard key={topic.id} topic={topic} onStatusChange={onStatusChange} onEdit={onEdit} onDelete={onDelete} />) : <p className="rounded-2xl bg-white p-8 text-center text-sm text-[var(--color-muted)]">No topics match this filter.</p>}</div></section>
+}

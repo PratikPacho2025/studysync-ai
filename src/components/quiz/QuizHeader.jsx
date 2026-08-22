@@ -1,0 +1,3 @@
+import { Brain } from 'lucide-react'
+
+export function QuizHeader() { return <header><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]"><Brain size={15} aria-hidden="true" /> Check your understanding</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">Quiz</h1><p className="mt-2 text-sm text-[var(--color-muted)]">Test what you actually know</p></header> }

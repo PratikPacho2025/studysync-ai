@@ -1,0 +1,3 @@
+import { ArrowUp, CircleAlert } from 'lucide-react'
+
+export function ProcrastinationMetric({ label, value, detail, severity = 'normal' }) { return <article className="rounded-2xl border border-[#e2ece4] bg-white p-4"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold text-[var(--color-ink)]">{label}</p><CircleAlert size={16} className={severity === 'warning' ? 'text-[#a87525]' : 'text-[var(--color-muted)]'} aria-hidden="true" /></div><strong className="mt-3 block text-2xl font-semibold text-[var(--color-ink)]">{value}</strong><p className="mt-1 flex items-center gap-1 text-xs font-semibold text-[var(--color-muted)]"><ArrowUp size={12} aria-hidden="true" /> {detail}</p></article> }

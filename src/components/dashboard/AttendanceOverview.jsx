@@ -1,0 +1,6 @@
+import { AlertTriangle, ArrowUpRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+export function AttendanceOverview({ attendance }) {
+  return <section className="dashboard-card bg-white p-5 sm:p-6" aria-labelledby="attendance-title"><div className="flex items-center justify-between"><h2 id="attendance-title" className="text-xl font-semibold text-[var(--color-ink)]">Attendance</h2><Link to="/attendance" aria-label="View attendance" className="grid size-10 place-items-center rounded-xl text-[var(--color-accent)] hover:bg-[#eef7f0]"><ArrowUpRight size={18} aria-hidden="true" /></Link></div><div className="mt-4 divide-y divide-[#edf1ed]">{attendance.map((item) => <div key={item.name} className="flex items-center justify-between gap-3 py-3 first:pt-1"><div className="min-w-0"><p className="truncate text-sm font-semibold text-[var(--color-ink)]">{item.name}</p>{item.attention && <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-[#a87525]"><AlertTriangle size={12} aria-hidden="true" /> Needs attention</p>}</div><span className={`text-lg font-semibold ${item.attention ? 'text-[#b36d2f]' : 'text-[var(--color-accent)]'}`}>{item.value}%</span></div>)}</div></section>
+}

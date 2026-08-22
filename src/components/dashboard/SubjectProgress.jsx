@@ -1,0 +1,6 @@
+import { ArrowUpRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+export function SubjectProgress({ subjects }) {
+  return <section className="dashboard-card bg-white p-5 sm:p-6" aria-labelledby="subject-progress-title"><div className="flex items-center justify-between"><h2 id="subject-progress-title" className="text-xl font-semibold text-[var(--color-ink)]">Subject Progress</h2><Link to="/subjects" aria-label="View all subjects" className="grid size-10 place-items-center rounded-xl text-[var(--color-accent)] hover:bg-[#eef7f0]"><ArrowUpRight size={18} aria-hidden="true" /></Link></div><div className="mt-5 space-y-4">{subjects.map((subject) => <div key={subject.name}><div className="mb-1.5 flex justify-between gap-3 text-sm font-semibold"><span className="truncate text-[var(--color-ink)]">{subject.name}</span><span className="text-[var(--color-muted)]">{subject.progress}%</span></div><div className="h-2 overflow-hidden rounded-full bg-[#e7efe9]"><div className="h-full rounded-full" style={{ width: `${subject.progress}%`, backgroundColor: subject.color }} /></div></div>)}</div></section>
+}

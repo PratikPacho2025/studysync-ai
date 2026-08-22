@@ -1,0 +1,7 @@
+import { CalendarCheck, CheckCircle2, XCircle } from 'lucide-react'
+import { AttendanceProgress } from './AttendanceProgress'
+import { AttendanceStatusBadge } from './AttendanceStatusBadge'
+
+export function AttendanceSummary({ summary }) {
+  return <section className="dashboard-card 3d-hover bg-white p-5 sm:p-6" aria-labelledby="overall-attendance-title"><div className="flex items-center gap-2"><CalendarCheck size={18} className="text-[var(--color-accent)]" aria-hidden="true" /><h2 id="overall-attendance-title" className="text-xl font-semibold text-[var(--color-ink)]">Overall Attendance</h2></div><div className="mt-6 flex items-center gap-5 sm:gap-8"><AttendanceProgress percentage={summary.percentage} size="large" /><div><AttendanceStatusBadge status={summary.status} /><p className="mt-3 max-w-[12rem] text-sm leading-5 text-[var(--color-muted)]">Keep showing up to protect your academic momentum.</p></div></div><div className="mt-6 grid grid-cols-3 gap-2 border-t border-[#edf1ed] pt-5">{[[CheckCircle2, 'Present', summary.present, 'text-[var(--color-accent)]'], [XCircle, 'Absent', summary.absent, 'text-[#a14d2e]'], [CalendarCheck, 'Total', summary.total, 'text-[var(--color-muted)]']].map(([Icon, label, value, color]) => <div key={label} className="text-center"><Icon size={16} className={`mx-auto ${color}`} aria-hidden="true" /><strong className="mt-2 block text-xl font-semibold text-[var(--color-ink)]">{value}</strong><span className="text-xs font-semibold text-[var(--color-muted)]">{label}</span></div>)}</div></section>
+}

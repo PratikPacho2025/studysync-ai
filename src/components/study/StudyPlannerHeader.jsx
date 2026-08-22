@@ -1,0 +1,6 @@
+import { CalendarDays, Plus } from 'lucide-react'
+
+export function StudyPlannerHeader({ onAdd }) {
+  const date = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date())
+  return <header className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">Make time count</p><h1 className="mt-1 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">Study Planner</h1><p className="mt-2 text-sm text-[var(--color-muted)]">Your plan for today</p><p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[var(--color-muted)]"><CalendarDays size={14} aria-hidden="true" /> {date}</p></div><button type="button" onClick={onAdd} aria-label="Add study task" className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--color-accent)] text-white shadow-[0_8px_18px_rgba(39,124,104,0.2)] transition hover:bg-[#1e6655] active:scale-95 sm:flex sm:h-11 sm:w-auto sm:gap-2 sm:px-4"><Plus size={20} aria-hidden="true" /><span className="hidden text-sm font-bold sm:inline">Add task</span></button></header>
+}

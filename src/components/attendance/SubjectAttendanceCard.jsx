@@ -1,0 +1,7 @@
+import { BookOpen } from 'lucide-react'
+import { AttendanceProgress } from './AttendanceProgress'
+import { AttendanceStatusBadge } from './AttendanceStatusBadge'
+
+export function SubjectAttendanceCard({ subject }) {
+  return <article className={`dashboard-card 3d-hover bg-white p-4 sm:p-5 ${subject.status === 'critical' ? 'border-[#eac7bb]' : ''}`}><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#edf5ef] text-[var(--color-accent)]"><BookOpen size={18} aria-hidden="true" /></span><div className="min-w-0"><h3 className="truncate font-semibold text-[var(--color-ink)]">{subject.subject}</h3><p className="mt-1 text-xs text-[var(--color-muted)]">{subject.present} present · {subject.absent} absent</p></div></div><AttendanceProgress percentage={subject.percentage} /></div><div className="mt-4 flex items-center justify-between gap-3"><AttendanceStatusBadge status={subject.status} /><span className="text-xs font-semibold text-[var(--color-muted)]">{subject.total} lectures</span></div>{subject.status === 'needs-attention' || subject.status === 'critical' ? <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-[#9b7024]">Attendance needs attention</p> : null}</article>
+}

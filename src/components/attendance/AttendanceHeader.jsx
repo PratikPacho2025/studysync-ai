@@ -1,0 +1,5 @@
+import { Info } from 'lucide-react'
+
+export function AttendanceHeader({ onMark }) {
+  return <header className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">Stay on track</p><h1 className="mt-1 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">Attendance</h1><p className="mt-2 text-sm text-[var(--color-muted)]">Track your academic progress</p></div><div className="flex items-center gap-2"><button type="button" aria-label="About attendance tracking" className="hidden size-10 place-items-center rounded-xl text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-accent)] sm:grid"><Info size={18} aria-hidden="true" /></button><button type="button" onClick={onMark} className="min-h-11 rounded-xl bg-[var(--color-accent)] px-3 text-xs font-bold text-white shadow-[0_8px_18px_rgba(39,124,104,0.2)] transition hover:bg-[#1e6655] active:scale-95 sm:px-4">+ <span className="hidden sm:inline">Mark Attendance</span><span className="sm:hidden">Mark</span></button></div></header>
+}

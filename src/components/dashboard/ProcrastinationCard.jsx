@@ -1,0 +1,5 @@
+import { AlertCircle } from 'lucide-react'
+
+export function ProcrastinationCard({ data }) {
+  return <section className="dashboard-card bg-[#fffaf0] p-5 sm:p-6" aria-labelledby="procrastination-title"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a87525]">Time management</p><h2 id="procrastination-title" className="mt-1 text-xl font-semibold text-[var(--color-ink)]">Procrastination Risk</h2></div><span className="grid size-10 place-items-center rounded-xl bg-[#f8eacb] text-[#a87525]"><AlertCircle size={20} aria-hidden="true" /></span></div><div className="mt-5 flex items-center gap-3"><span className="rounded-full bg-[#f2dcae] px-3 py-1 text-sm font-bold text-[#8c641c]">{data.risk}</span><span className="text-sm text-[var(--color-muted)]">{data.missedSessions} missed sessions this week</span></div><p className="mt-5 text-sm leading-6 text-[var(--color-muted)]"><strong className="font-semibold text-[var(--color-ink)]">Suggestion: </strong>{data.suggestion}</p></section>
+}

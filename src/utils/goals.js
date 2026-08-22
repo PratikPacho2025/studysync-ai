@@ -1,0 +1,4 @@
+export function getGoalProgress(goal) { return Math.min(100, goal.target ? Math.round((goal.current / goal.target) * 100) : 0) }
+export function getGoalStatus(goal) { const progress = getGoalProgress(goal); if (progress >= 100) return 'completed'; if (progress >= 70) return 'excellent'; if (progress >= 45) return 'on-track'; if (progress >= 25) return 'needs-attention'; return 'behind' }
+export function getGoalConsistency(goal) { return Math.min(100, Math.round(goal.consistency ?? 0)) }
+export function getGoalStreak(habits, goalId) { return habits.filter((habit) => habit.goalId === goalId).reduce((max, habit) => Math.max(max, habit.streak ?? 0), 0) }

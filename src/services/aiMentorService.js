@@ -1,10 +1,8 @@
 // ─────────────────────────────────────────────────────────────
 //  AI Mentor Service
 //
-//  Currently returns mock responses.
-//  Replace the implementation of `sendMessage` with a real
-//  API call when the backend is ready. The UI components
-//  only depend on this service — they will NOT need to change.
+//  Uses Groq when VITE_GROQ_API_KEY is configured and keeps
+//  the local mock responses available for development without a key.
 //
 //  Future API shape:
 //
@@ -27,7 +25,9 @@
 
 import { mockResponses } from '../data/mock/aiMentor'
 
-// Simulated network latency (ms) so the typing indicator is visible
+const GROQ_ENABLED = import.meta.env.VITE_GROQ_ENABLED !== 'false'
+
+// Simulated network latency (ms) so the typing indicator is visible in fallback mode
 const MOCK_DELAY_MIN = 900
 const MOCK_DELAY_MAX = 1800
 
@@ -55,14 +55,26 @@ function matchFallback(text) {
  * @returns {Promise<{content: string, actions?: Array<{label: string, path?: string, quickAction?: string}>}>}
  */
 export async function sendMessage(message, quickActionKey = null, context = {}) {
-  // ── Future API call would go here ──────────────────────────
-  // const response = await fetch('/api/ai/chat', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ message, context }),
-  // })
-  // return response.json()
-  // ────────────────────────────────────────────────────────────
+  if (GROQ_ENABLED) {
+    const response = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        quickActionKey,
+        context,
+      }),
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.error || `AI request failed (${response.status})`)
+    }
+
+    const content = data.content
+    if (!content) throw new Error('Groq returned an empty response')
+    return { content, actions: data.actions ?? [] }
+  }
 
   await new Promise((resolve) => setTimeout(resolve, randomDelay()))
 

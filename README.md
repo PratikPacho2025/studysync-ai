@@ -1,4 +1,31 @@
-# React + Vite
+# StudySync AI
+
+## Groq AI Mentor
+
+The AI Mentor uses Groq through the local Node API server. Create a `.env.local` file in the project root:
+
+```env
+GROQ_API_KEY=your_new_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+Start both processes in separate terminals:
+
+```bash
+npm run api
+npm run dev
+```
+
+Restart the API server after changing the key. Live Groq mode is enabled by default; set `VITE_GROQ_ENABLED=false` only when you want the included mock responses.
+
+For production, proxy Groq requests through a server-side endpoint so the API key is never exposed in browser code.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 

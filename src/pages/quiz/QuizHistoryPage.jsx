@@ -1,4 +1,15 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { quizHistory } from '../../data/mock/quiz'
+import { api } from '../../services/api'
 
-export function QuizHistoryPage() { return <div className="mx-auto w-full max-w-3xl space-y-6"><Link to="/quiz" className="text-sm font-bold text-[var(--color-accent)]">← Back to Quiz</Link><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">Your practice trail</p><h1 className="mt-1 text-3xl font-semibold text-[var(--color-ink)]">Quiz History</h1></div><div className="space-y-3">{quizHistory.map((item) => <article key={item.id} className="dashboard-card flex items-center justify-between bg-white p-5"><div><h2 className="font-semibold text-[var(--color-ink)]">{item.subject}</h2><p className="mt-1 text-sm text-[var(--color-muted)]">{item.topic} · {item.date}</p></div><strong className={`text-2xl ${item.score < 60 ? 'text-[#a14d2e]' : 'text-[var(--color-accent)]'}`}>{item.score}%</strong></article>)}</div></div> }
+export function QuizHistoryPage() { 
+  const [quizHistory, setQuizHistory] = useState([])
+
+  useEffect(() => {
+    api.fetchQuizzes().then((data) => {
+      setQuizHistory(data.quizHistory)
+    }).catch(console.error)
+  }, [])
+
+  return <div className="mx-auto w-full max-w-3xl space-y-6"><Link to="/quiz" className="text-sm font-bold text-[var(--color-accent)]">← Back to Quiz</Link><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">Your practice trail</p><h1 className="mt-1 text-3xl font-semibold text-[var(--color-ink)]">Quiz History</h1></div><div className="space-y-3">{quizHistory.map((item) => <article key={item.id} className="dashboard-card flex items-center justify-between bg-white p-5"><div><h2 className="font-semibold text-[var(--color-ink)]">{item.subject}</h2><p className="mt-1 text-sm text-[var(--color-muted)]">{item.topic} · {item.date}</p></div><strong className={`text-2xl ${item.score < 60 ? 'text-[#a14d2e]' : 'text-[var(--color-accent)]'}`}>{item.score}%</strong></article>)}</div></div> 
+}

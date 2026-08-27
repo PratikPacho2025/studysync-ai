@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   AttendanceHeader,
   AttendanceHistory,
@@ -6,16 +6,27 @@ import {
   MarkAttendanceSheet,
   SubjectAttendanceCard,
 } from '../../components/attendance'
-import { attendanceData, attendanceHistory } from '../../data/mock/attendance'
 import { calculateAttendancePercentage, getAttendanceStatus } from '../../utils/attendance'
+import { api } from '../../services/api'
 
-const statusOrder = { critical: 0, 'needs-attention': 1, good: 2, excellent: 3 }
+const statusOrder = { excellent: 0, good: 1, 'needs-attention': 2, critical: 3 }
 
 export function AttendancePage() {
-  const [subjects, setSubjects] = useState(attendanceData)
-  const [history, setHistory] = useState(attendanceHistory)
+  const [subjects, setSubjects] = useState([])
+  const [history, setHistory] = useState([])
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [isMarkAttendanceOpen, setIsMarkAttendanceOpen] = useState(false)
+
+  function loadAttendance() {
+    api.fetchAttendance().then((data) => {
+      setSubjects(data.subjects)
+      setHistory(data.history)
+    }).catch(console.error)
+  }
+
+  useEffect(() => {
+    loadAttendance()
+  }, [])
 
   const summary = useMemo(() => {
     const totals = subjects.reduce((result, subject) => ({ present: result.present + subject.present, absent: result.absent + subject.absent }), { present: 0, absent: 0 })
@@ -25,18 +36,10 @@ export function AttendancePage() {
   }, [subjects])
 
   const visibleHistory = history.filter((record) => selectedFilter === 'all' || record.status === selectedFilter)
-  const sortedSubjects = [...subjects].sort((first, second) => statusOrder[first.status] - statusOrder[second.status])
+  const sortedSubjects = [...subjects].sort((first, second) => (statusOrder[first.status] ?? 4) - (statusOrder[second.status] ?? 4))
 
   function saveAttendance(record) {
-    setSubjects((currentSubjects) => currentSubjects.map((subject) => {
-      if (subject.subject !== record.subject) return subject
-      const present = subject.present + (record.status === 'present' ? 1 : 0)
-      const absent = subject.absent + (record.status === 'absent' ? 1 : 0)
-      const total = present + absent
-      const percentage = calculateAttendancePercentage(present, total)
-      return { ...subject, present, absent, total, percentage, status: getAttendanceStatus(percentage) }
-    }))
-    setHistory((currentHistory) => [{ id: Date.now(), subject: record.subject, date: new Date(`${record.date}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), time: record.lecture, status: record.status }, ...currentHistory])
+    api.markAttendance(record).then(loadAttendance).catch(console.error)
     setIsMarkAttendanceOpen(false)
   }
 

@@ -1,0 +1,202 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  email                 String?                 @unique
+  createdAt             DateTime                @default(now())
+  subjects              Subject[]
+  lectures              Lecture[]
+  attendanceRecords     AttendanceRecord[]
+  goals                 Goal[]
+  studyTasks            StudyTask[]
+  revisionSessions      RevisionSession[]
+  quizAttempts          QuizAttempt[]
+  procrastinationStates ProcrastinationState[]
+  delayedTasks          DelayedTask[]
+}
+
+model Subject {
+  id          String   @id @default(uuid())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String   @unique
+  code        String
+  teacher     String
+  description String
+  color       String   @default("#277c68")
+  present     Int      @default(0)
+  absent      Int      @default(0)
+  topics      Topic[]
+  createdAt   DateTime @default(now())
+}
+
+model Topic {
+  id             String   @id @default(uuid())
+  subjectId      String
+  subject        Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  name           String
+  description    String
+  status         String   @default("not-started") // "completed", "in-progress", "not-started"
+  studyProgress  Int      @default(0) // 0 to 100
+  quizAccuracy   Float    @default(0.0) // 0 to 100
+  revisionStatus String   @default("pending") // "completed", "pending"
+  createdAt      DateTime @default(now())
+}
+
+model Lecture {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day       String // "Monday", "Tuesday", etc.
+  subject   String
+  topic     String
+  startTime String // "HH:MM"
+  endTime   String // "HH:MM"
+  room      String
+  teacher   String
+  status    String   @default("upcoming") // "completed", "upcoming", "ongoing", "cancelled"
+  createdAt DateTime @default(now())
+}
+
+model AttendanceRecord {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  date      String // "Today", "Yesterday", "DD MMM YYYY", etc.
+  time      String // "HH:MM AM/PM"
+  status    String // "present", "absent"
+  createdAt DateTime @default(now())
+}
+
+model Goal {
+  id          String   @id @default(uuid())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  category    String // "academic", "career", "health", etc.
+  description String
+  type        String // "count", "milestone", "duration"
+  target      Int
+  current     Int      @default(0)
+  unit        String // "problems", "milestones", etc.
+  dailyTarget Int
+  deadline    String // "YYYY-MM-DD"
+  consistency Int      @default(0)
+  status      String   @default("on-track") // "on-track", "needs-attention", "excellent", "behind"
+  habits      Habit[]
+  createdAt   DateTime @default(now())
+}
+
+model Habit {
+  id        String   @id @default(uuid())
+  goalId    String
+  goal      Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  title     String
+  target    String
+  completed Boolean  @default(false)
+  streak    Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model StudyTask {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  subject   String
+  topic     String
+  type      String // "study", "revision", "quiz", "practice", "assignment", "reading"
+  duration  Int // in minutes
+  priority  String // "high", "medium", "low"
+  dueDate   String // "today", "tomorrow", "in-2-days"
+  dueTime   String // "HH:MM AM/PM"
+  status    String   @default("pending") // "pending", "completed", "overdue"
+  createdAt DateTime @default(now())
+}
+
+model RevisionSession {
+  id             String   @id @default(uuid())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject        String
+  topic          String
+  lectureDate    String // ISO Date string
+  revisionNumber Int      @default(1)
+  scheduledDate  String // ISO Date string
+  duration       Int // in minutes
+  status         String   @default("due") // "due", "upcoming", "overdue", "completed"
+  confidence     String? // "high", "medium", "low"
+  understanding  Int?
+  createdAt      DateTime @default(now())
+}
+
+model Quiz {
+  id         String         @id @default(uuid())
+  subject    String
+  topic      String
+  difficulty String // "easy", "medium", "hard"
+  duration   Int // in minutes
+  status     String         @default("ready")
+  questions  QuizQuestion[]
+  createdAt  DateTime       @default(now())
+}
+
+model QuizQuestion {
+  id            String   @id @default(uuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question      String
+  options       Json // Store options as a JSON array of strings
+  correctAnswer String
+  explanation   String
+  createdAt     DateTime @default(now())
+}
+
+model QuizAttempt {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  topic     String
+  score     Int // 0 to 100
+  date      String // "Today", "Yesterday", "X days ago"
+  createdAt DateTime @default(now())
+}
+
+model ProcrastinationState {
+  id               String   @id @default(uuid())
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  missedSessions   Int      @default(0)
+  ignoredReminders Int      @default(0)
+  pendingTopics    Int      @default(0)
+  delayedRevisions Int      @default(0)
+  examPressure     Int      @default(50)
+  previousRisk     Int      @default(0)
+  trend            Json // Array of risk scores over time
+  createdAt        DateTime @default(now())
+}
+
+model DelayedTask {
+  id              String   @id @default(uuid())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  topic           String
+  delayedCount    Int      @default(0)
+  originalDate    String // ISO Date string
+  lastDelayedDate String // ISO Date string
+  priority        String // "high", "medium", "low"
+  duration        Int // in minutes
+  createdAt       DateTime @default(now())
+}

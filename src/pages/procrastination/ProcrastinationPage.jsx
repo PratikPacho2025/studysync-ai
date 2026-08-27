@@ -1,6 +1,27 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DelayedTaskCard, FocusNowCard, MissedSessionCard, ProcrastinationHeader, ProcrastinationRiskCard, ProcrastinationTrend, RecoveryPlan, RiskBreakdown } from '../../components/procrastination'
-import { procrastinationData } from '../../data/mock/procrastination'
 import { calculateProcrastinationRisk, getFocusTask, getRiskStatus } from '../../utils/procrastination'
+import { api } from '../../services/api'
 
-export function ProcrastinationPage() { const data = procrastinationData; const risk = calculateProcrastinationRisk(data); const status = getRiskStatus(risk); const focusTask = useMemo(() => getFocusTask(data.delayedTasks), [data.delayedTasks]); const change = Math.round(((risk - data.previousRisk) / data.previousRisk) * 100); return <div className="mx-auto w-full max-w-6xl space-y-7 pb-2"><ProcrastinationHeader /><div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"><ProcrastinationRiskCard risk={risk} status={status} change={change} /><FocusNowCard task={focusTask} /></div><RiskBreakdown data={data} /><section aria-labelledby="delayed-title"><div className="mb-4"><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">Patterns worth noticing</p><h2 id="delayed-title" className="mt-1 text-2xl font-semibold text-[var(--color-ink)]">Delayed Tasks</h2></div><div className="grid gap-4 lg:grid-cols-3">{data.delayedTasks.map((task) => <DelayedTaskCard key={task.id} task={task} />)}</div></section><div className="grid gap-5 lg:grid-cols-2"><MissedSessionCard sessions={data.missedSessionsList} /><ProcrastinationTrend values={data.trend} change={change} /></div><RecoveryPlan /><p className="sr-only">Risk is a prototype weighted calculation based on missed sessions, ignored reminders, pending topics, delayed revisions, and exam pressure.</p></div> }
+export function ProcrastinationPage() { 
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+    api.fetchProcrastination().then(setData).catch(console.error)
+  }, [])
+
+  const focusTask = useMemo(() => {
+    if (!data) return null
+    return getFocusTask(data.delayedTasks)
+  }, [data])
+
+  if (!data) {
+    return <div className="p-8 text-center text-sm text-[var(--color-muted)]">Loading procrastination stats...</div>
+  }
+
+  const risk = data.riskScore
+  const status = data.risk
+  const change = data.previousRisk ? Math.round(((risk - data.previousRisk) / data.previousRisk) * 100) : 0
+
+  return <div className="mx-auto w-full max-w-6xl space-y-7 pb-2"><ProcrastinationHeader /><div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"><ProcrastinationRiskCard risk={risk} status={status} change={change} /><FocusNowCard task={focusTask} /></div><RiskBreakdown data={data} /><section aria-labelledby="delayed-title"><div className="mb-4"><p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">Patterns worth noticing</p><h2 id="delayed-title" className="mt-1 text-2xl font-semibold text-[var(--color-ink)]">Delayed Tasks</h2></div><div className="grid gap-4 lg:grid-cols-3">{data.delayedTasks.map((task) => <DelayedTaskCard key={task.id} task={task} />)}</div></section><div className="grid gap-5 lg:grid-cols-2"><MissedSessionCard sessions={data.missedSessionsList} /><ProcrastinationTrend values={data.trend} change={change} /></div><RecoveryPlan /><p className="sr-only">Risk is a prototype weighted calculation based on missed sessions, ignored reminders, pending topics, delayed revisions, and exam pressure.</p></div> 
+}

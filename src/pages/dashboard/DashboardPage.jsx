@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AIRecommendationCard,
   AttendanceOverview,
@@ -11,18 +11,39 @@ import {
   TodayOverview,
   UpcomingExamCard,
 } from '../../components/dashboard'
-import { dashboardData } from '../../data/mock/dashboard'
+import { api } from '../../services/api'
 
 export function DashboardPage() {
+  const [dashboardData, setDashboardData] = useState(null)
   const [completedTaskIds, setCompletedTaskIds] = useState([])
   const [studyStarted, setStudyStarted] = useState(false)
 
+  function loadDashboard() {
+    api.fetchDashboard().then((data) => {
+      setDashboardData(data)
+      const completed = data.studyTasks
+        .filter((t) => t.status.toLowerCase() === 'completed')
+        .map((t) => t.id)
+      setCompletedTaskIds(completed)
+    }).catch(console.error)
+  }
+
+  useEffect(() => {
+    loadDashboard()
+  }, [])
+
   function toggleTask(taskId) {
-    setCompletedTaskIds((currentIds) => (
-      currentIds.includes(taskId)
-        ? currentIds.filter((id) => id !== taskId)
-        : [...currentIds, taskId]
-    ))
+    if (!dashboardData) return
+    const isCompleted = completedTaskIds.includes(taskId)
+    const nextStatus = isCompleted ? 'pending' : 'completed'
+
+    api.updateStudyTask(taskId, { status: nextStatus }).then(() => {
+      loadDashboard()
+    }).catch(console.error)
+  }
+
+  if (!dashboardData) {
+    return <div className="p-8 text-center text-sm text-[var(--color-muted)]">Loading dashboard...</div>
   }
 
   return (

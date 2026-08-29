@@ -43,10 +43,31 @@ function TypingIndicator() {
  */
 export function AIChat({ messages, isTyping, inputValue, onInputChange, onSend }) {
   const bottomRef = useRef(null)
+  const prevMessageCount = useRef(messages.length)
 
-  // Scroll to latest message whenever messages or typing state changes
+  // Smart auto-scroll logic
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    // 1. If typing started, scroll to the typing indicator
+    if (isTyping) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    } 
+    // 2. If a new message arrived
+    else if (messages.length > prevMessageCount.current) {
+      const lastMessage = messages[messages.length - 1]
+      
+      if (lastMessage.role === 'assistant') {
+        // Scroll to the START of the new AI message
+        const messageEl = document.getElementById(lastMessage.id)
+        if (messageEl) {
+          messageEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      } else {
+        // Scroll to bottom for user messages
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+
+    prevMessageCount.current = messages.length
   }, [messages, isTyping])
 
   return (

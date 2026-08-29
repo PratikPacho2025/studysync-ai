@@ -13,6 +13,7 @@ export function AIMessage({ message }) {
 
   return (
     <div
+      id={message.id}
       className={`flex gap-2.5 ${isAssistant ? 'justify-start' : 'justify-end'}`}
       role="listitem"
     >

@@ -39,6 +39,15 @@ export function AIMentorPage() {
   }, [])
 
   // ── Core send logic ─────────────────────────────────────────
+  const getOrCreateConversationId = useCallback(() => {
+    let id = localStorage.getItem('studysync_conversation_id')
+    if (!id) {
+      id = crypto.randomUUID()
+      localStorage.setItem('studysync_conversation_id', id)
+    }
+    return id
+  }, [])
+
   const addUserMessage = useCallback((text) => {
     const userMsg = {
       id: nextId(),
@@ -75,9 +84,10 @@ export function AIMentorPage() {
       setIsTyping(true)
 
       try {
+        const conversationId = getOrCreateConversationId()
         // sendMessage is async — currently returns after a mock delay.
         // In the future it will call POST /api/ai/chat.
-        const response = await sendMessage(text, quickActionKey)
+        const response = await sendMessage(text, quickActionKey, {}, conversationId)
         addAssistantMessage(response.content, response.actions)
       } catch (error) {
         addAssistantMessage(
@@ -88,7 +98,7 @@ export function AIMentorPage() {
         setIsTyping(false)
       }
     },
-    [isTyping, addUserMessage, addAssistantMessage],
+    [isTyping, addUserMessage, addAssistantMessage, getOrCreateConversationId],
   )
 
   // ── Handlers ────────────────────────────────────────────────

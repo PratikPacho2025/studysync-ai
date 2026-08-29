@@ -54,7 +54,7 @@ function matchFallback(text) {
  * @param {object} [context]   — Optional StudySync context data (future use)
  * @returns {Promise<{content: string, actions?: Array<{label: string, path?: string, quickAction?: string}>}>}
  */
-export async function sendMessage(message, quickActionKey = null, context = {}) {
+export async function sendMessage(message, quickActionKey = null, context = {}, conversationId = null) {
   if (GROQ_ENABLED) {
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
@@ -63,6 +63,7 @@ export async function sendMessage(message, quickActionKey = null, context = {}) 
         message,
         quickActionKey,
         context,
+        conversationId,
       }),
     })
 

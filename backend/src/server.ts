@@ -53,6 +53,26 @@ const groqApiKey = process.env.GROQ_API_KEY
 const groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions'
 const groqModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
 
+import { prisma } from './db'
+
+const MAX_CONTEXT_MESSAGES = 15
+
+async function buildConversationContext(conversationId: string) {
+  // Layer 1: Short-Term Memory (Recent messages)
+  // Future Layer 2 & 3 will be integrated here
+  const messages = await prisma.message.findMany({
+    where: { conversationId },
+    orderBy: { createdAt: 'desc' },
+    take: MAX_CONTEXT_MESSAGES,
+  })
+
+  // Return them in chronological order
+  return messages.reverse().map((msg) => ({
+    role: msg.role === 'user' ? 'user' : 'assistant',
+    content: msg.content,
+  }))
+}
+
 app.post('/api/ai/chat', async (req: Request, res: Response) => {
   if (!groqApiKey) {
     return res.status(503).json({
@@ -61,11 +81,35 @@ app.post('/api/ai/chat', async (req: Request, res: Response) => {
   }
 
   try {
-    const { message, context } = req.body
+    const { conversationId, message, context } = req.body
     if (!message) {
       return res.status(400).json({ error: 'A message is required' })
     }
+    if (!conversationId) {
+      return res.status(400).json({ error: 'A conversationId is required' })
+    }
 
+    // STEP 2: Ensure Conversation exists
+    let conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId }
+    })
+    
+    if (!conversation) {
+      conversation = await prisma.conversation.create({
+        data: { id: conversationId } // user_id is null for anonymous
+      })
+    }
+
+    // STEP 3: Save user's new message
+    await prisma.message.create({
+      data: {
+        conversationId: conversation.id,
+        role: 'user',
+        content: message
+      }
+    })
+
+    // STEP 4 & 5: Build AI Context
     const systemPrompt = `You are StudySync AI Mentor, a supportive academic productivity assistant.
 Help students understand concepts, plan realistic study sessions, revise effectively, and stay motivated.
 Answer the student's actual question directly. Be concise, practical, and encouraging.
@@ -75,6 +119,12 @@ Never claim to access data that is not provided. For medical, legal, or crisis c
     const contextText = context && Object.keys(context).length
       ? `\n\nStudySync context:\n${JSON.stringify(context)}`
       : ''
+
+    const previousMessages = await buildConversationContext(conversation.id)
+
+    // Append contextText to the current message without saving it to the DB this way
+    // (We only saved the pure user message to DB, but we send the enriched one to Groq)
+    const enrichedMessage = `${message}${contextText}`
 
     const response = await fetch(groqApiUrl, {
       method: 'POST',
@@ -88,7 +138,8 @@ Never claim to access data that is not provided. For medical, legal, or crisis c
         max_tokens: 700,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `${message}${contextText}` }
+          ...previousMessages.slice(0, -1), // Everything except the very last (current) message which we enriched
+          { role: 'user', content: enrichedMessage }
         ]
       })
     })
@@ -101,6 +152,20 @@ Never claim to access data that is not provided. For medical, legal, or crisis c
 
     let content = data.choices?.[0]?.message?.content || ''
     content = content.replace(/<think>[\s\S]*?<\/think>\n*/gi, '').trim()
+
+    // STEP 6: Save Groq response to Supabase
+    await prisma.message.create({
+      data: {
+        conversationId: conversation.id,
+        role: 'assistant',
+        content
+      }
+    })
+    
+    await prisma.conversation.update({
+      where: { id: conversation.id },
+      data: { updatedAt: new Date() }
+    })
 
     res.json({ content, actions: [] })
   } catch (error: any) {

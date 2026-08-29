@@ -71,9 +71,9 @@ export function AIChat({ messages, isTyping, inputValue, onInputChange, onSend }
   }, [messages, isTyping])
 
   return (
-    <section aria-label="AI Mentor chat" className="dashboard-card flex flex-col bg-[#fafcfb]">
+    <section aria-label="AI Mentor chat" className="dashboard-card flex h-full flex-col bg-[#fafcfb]">
       {/* Header bar */}
-      <div className="flex items-center gap-2 border-b border-[#e2ece4] px-4 py-3">
+      <div className="flex shrink-0 items-center gap-2 border-b border-[#e2ece4] px-4 py-3">
         <span className="size-2 rounded-full bg-[var(--color-accent)]" aria-hidden="true" />
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-muted)]">
           AI Chat
@@ -85,12 +85,11 @@ export function AIChat({ messages, isTyping, inputValue, onInputChange, onSend }
 
       {/* Message list */}
       <div
-        className="flex flex-col gap-4 overflow-y-auto px-4 py-4"
+        className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4"
         role="list"
         aria-label="Chat messages"
         aria-live="polite"
         aria-relevant="additions"
-        style={{ maxHeight: '60vh', minHeight: '12rem' }}
       >
         {messages.map((message) => (
           <AIMessage key={message.id} message={message} />

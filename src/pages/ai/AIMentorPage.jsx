@@ -126,72 +126,12 @@ export function AIMentorPage() {
 
   // ── Render ──────────────────────────────────────────────────
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 pb-2">
-
+    <div className="mx-auto flex h-[calc(100vh-6rem)] w-full max-w-4xl flex-col gap-4 pb-2">
       {/* ── Header ────────────────────────────────────────── */}
       <AIMentorHeader onClearChat={handleClearChat} />
 
-      {/* ── Welcome card ──────────────────────────────────── */}
-      <AIWelcomeCard userName={aiMentorUser.name} />
-
-      {/* ── Insights ──────────────────────────────────────── */}
-      <section aria-labelledby="insights-heading">
-        <div className="mb-3">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">
-            What I noticed
-          </p>
-          <h2
-            id="insights-heading"
-            className="mt-0.5 text-xl font-semibold text-[var(--color-ink)] sm:text-2xl"
-          >
-            Key Insights
-          </h2>
-        </div>
-        <div className="space-y-2.5">
-          {aiInsights.map((insight) => (
-            <AIInsightCard key={insight.id} insight={insight} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── Desktop two-column: Quick Actions + Recommendation ── */}
-      {/* Mobile: stacked; Desktop: side-by-side                   */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(18rem,0.8fr)]">
-
-        {/* Quick Actions */}
-        <AIQuickActions onAction={handleQuickAction} />
-
-        {/* Recommendation */}
-        <section aria-labelledby="recommendation-heading">
-          <div className="mb-3">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">
-              Start here
-            </p>
-            <h2
-              id="recommendation-heading"
-              className="mt-0.5 text-xl font-semibold text-[var(--color-ink)] sm:text-2xl"
-            >
-              Top Pick
-            </h2>
-          </div>
-          <AIRecommendationCard />
-        </section>
-      </div>
-
       {/* ── Chat ─────────────────────────────────────────── */}
-      <section aria-labelledby="chat-heading">
-        <div className="mb-3">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-accent)]">
-            Ask anything
-          </p>
-          <h2
-            id="chat-heading"
-            className="mt-0.5 text-xl font-semibold text-[var(--color-ink)] sm:text-2xl"
-          >
-            Chat with AI Mentor
-          </h2>
-        </div>
-
+      <div className="flex-1 overflow-hidden">
         <AIChat
           messages={messages}
           isTyping={isTyping}
@@ -199,10 +139,10 @@ export function AIMentorPage() {
           onInputChange={setInputValue}
           onSend={handleSend}
         />
-      </section>
+      </div>
 
       {/* ── Trust note ───────────────────────────────────── */}
-      <p className="pb-1 text-center text-[11px] leading-relaxed text-[var(--color-muted)]">
+      <p className="pb-1 text-center text-[11px] leading-relaxed text-[var(--color-muted)] shrink-0">
         AI suggestions are based on your StudySync activity and may not always be perfect.
         <br />
         This assistant is for academic productivity only.

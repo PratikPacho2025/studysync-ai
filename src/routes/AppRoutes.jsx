@@ -15,6 +15,11 @@ import { GoalsPage } from '../pages/goals/GoalsPage'
 import { AnalyticsPage } from '../pages/analytics/AnalyticsPage'
 import { ProcrastinationPage } from '../pages/procrastination/ProcrastinationPage'
 import { AIMentorPage } from '../pages/ai/AIMentorPage'
+import { ProfilePage } from '../pages/profile/ProfilePage'
+import { LoginPage } from '../pages/auth/LoginPage'
+import { SignupPage } from '../pages/auth/SignupPage'
+import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage'
+import { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute'
 
 const pageRoutes = [
   ['dashboard', 'Dashboard'],
@@ -34,6 +39,10 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
+      <Route path="/signup" element={<PublicOnlyRoute><SignupPage /></PublicOnlyRoute>} />
+      <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
+      <Route element={<ProtectedRoute />}>
       <Route element={<AppLayout />}>
         <Route path="/procrastination" element={<ProcrastinationPage />} />
         <Route path="/quiz/session/:quizId" element={<QuizSessionPage />} />
@@ -54,16 +63,16 @@ export function AppRoutes() {
               path === 'goals' ? <GoalsPage /> :
               path === 'analytics' ? <AnalyticsPage /> :
               path === 'ai-mentor' ? <AIMentorPage /> :
+              path === 'profile'   ? <ProfilePage /> :
               <PlaceholderPage title={title} />
             }
           />
         ))}
 
       </Route>
-      <Route path="/login" element={<PlaceholderPage title="Login" />} />
-      <Route path="/signup" element={<PlaceholderPage title="Sign up" />} />
-      <Route path="/onboarding" element={<PlaceholderPage title="Onboarding" />} />
-      <Route path="*" element={<PlaceholderPage title="Page not found" />} />
+      </Route>
+      <Route path="/onboarding" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )
 }

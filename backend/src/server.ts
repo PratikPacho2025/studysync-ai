@@ -49,9 +49,7 @@ app.use('/api/analytics', analyticsRouter)
 app.use('/api/procrastination', procrastinationRouter)
 
 // AI Chat End-point (Fallback to Groq if key exists, otherwise let frontend handle mock)
-const groqApiKey = process.env.GROQ_API_KEY
 const groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions'
-const groqModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
 
 import { prisma } from './db'
 
@@ -74,6 +72,12 @@ async function buildConversationContext(conversationId: string) {
 }
 
 app.post('/api/ai/chat', async (req: Request, res: Response) => {
+  // Reload dotenv to pick up any runtime changes to .env
+  dotenv.config()
+
+  const groqApiKey = process.env.GROQ_API_KEY
+  const groqModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
+
   if (!groqApiKey) {
     return res.status(503).json({
       error: 'GROQ_API_KEY is not configured on the AI server. Please add it to your .env file.'
@@ -126,7 +130,7 @@ Never claim to access data that is not provided. For medical, legal, or crisis c
     // (We only saved the pure user message to DB, but we send the enriched one to Groq)
     const enrichedMessage = `${message}${contextText}`
 
-    const response = await fetch(groqApiUrl, {
+    let response = await fetch(groqApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -144,7 +148,30 @@ Never claim to access data that is not provided. For medical, legal, or crisis c
       })
     })
 
-    const data = await response.json() as any
+    let data = await response.json() as any
+
+    // Fallback if the requested model is not accessible
+    if (!response.ok && (response.status === 404 || data.error?.code === 'model_not_found')) {
+      console.warn(`Model ${groqModel} not available on this API key. Retrying with fallback model groq/compound...`)
+      response = await fetch(groqApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${groqApiKey}`
+        },
+        body: JSON.stringify({
+          model: 'groq/compound',
+          temperature: 0.6,
+          max_tokens: 700,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...previousMessages.slice(0, -1),
+            { role: 'user', content: enrichedMessage }
+          ]
+        })
+      })
+      data = await response.json() as any
+    }
 
     if (!response.ok) {
       return res.status(response.status).json({ error: data.error?.message || 'AI request failed' })
